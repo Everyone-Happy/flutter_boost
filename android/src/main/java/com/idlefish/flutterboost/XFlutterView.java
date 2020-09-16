@@ -72,9 +72,9 @@ public class XFlutterView extends FrameLayout {
   // These components essentially add some additional behavioral logic on top of
   // existing, stateless system channels, e.g., KeyEventChannel, TextInputChannel, etc.
   @Nullable
-  private XTextInputPlugin textInputPlugin;
+  private TextInputPlugin textInputPlugin;
   @Nullable
-  private XAndroidKeyProcessor androidKeyProcessor;
+  private AndroidKeyProcessor androidKeyProcessor;
   @Nullable
   private AndroidTouchProcessor androidTouchProcessor;
   @Nullable
@@ -570,16 +570,10 @@ public class XFlutterView extends FrameLayout {
     this.flutterEngine.getPlatformViewsController().attachToView(this);
 
 
-    textInputPlugin= XTextInputPlugin.getTextInputPlugin(  this.flutterEngine.getDartExecutor(),
+    textInputPlugin = new TextInputPlugin(this, this.flutterEngine.getDartExecutor(),
             this.flutterEngine.getPlatformViewsController());
-    textInputPlugin.updateView(this);
-    textInputPlugin.getInputMethodManager().restartInput(this);
+    androidKeyProcessor = new AndroidKeyProcessor(this.flutterEngine.getKeyEventChannel(), this.textInputPlugin);
 
-
-    this.androidKeyProcessor = new XAndroidKeyProcessor(
-            this.flutterEngine.getKeyEventChannel(),
-            textInputPlugin
-    );
 
     this.androidTouchProcessor = new AndroidTouchProcessor(this.flutterEngine.getRenderer());
     this.accessibilityBridge = new AccessibilityBridge(
@@ -657,7 +651,8 @@ public class XFlutterView extends FrameLayout {
     // TODO(mattcarroll): once this is proven to work, move this line ot TextInputPlugin
 
     // Instruct our FlutterRenderer that we are no longer interested in being its RenderSurface.
-
+    textInputPlugin.getInputMethodManager().restartInput(this);
+    textInputPlugin.destroy();
 
     FlutterRenderer flutterRenderer = flutterEngine.getRenderer();
     isFlutterUiDisplayed = false;
@@ -671,7 +666,7 @@ public class XFlutterView extends FrameLayout {
   }
   public void release(){
     if(textInputPlugin!=null){
-      textInputPlugin.release(this);
+      //textInputPlugin.release(this);
     }
   }
 
