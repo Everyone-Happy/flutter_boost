@@ -570,12 +570,12 @@ public class XFlutterView extends FrameLayout {
     this.flutterEngine.getPlatformViewsController().attachToView(this);
 
 
-    textInputPlugin = new TextInputPlugin(this, this.flutterEngine.getDartExecutor(),
+    textInputPlugin = new TextInputPlugin(this, this.flutterEngine.getTextInputChannel(),
             this.flutterEngine.getPlatformViewsController());
     androidKeyProcessor = new AndroidKeyProcessor(this.flutterEngine.getKeyEventChannel(), this.textInputPlugin);
 
 
-    this.androidTouchProcessor = new AndroidTouchProcessor(this.flutterEngine.getRenderer());
+    this.androidTouchProcessor = new AndroidTouchProcessor(this.flutterEngine.getRenderer(), true);
     this.accessibilityBridge = new AccessibilityBridge(
             this,
             flutterEngine.getAccessibilityChannel(),
