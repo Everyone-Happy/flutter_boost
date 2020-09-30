@@ -194,7 +194,6 @@ class BoostContainerState extends NavigatorState {
     }
 
     final Route<T> route = routerHistory.last as Route<T>;
-
     final RoutePopDisposition disposition = await route.willPop();
     if (mounted) {
     switch (disposition) {
@@ -231,6 +230,18 @@ class BoostContainerState extends NavigatorState {
       }
     }
     return true;
+  }
+
+  // 当调用 Navigator.pushAndRemoveUntil(context, route, (check) => false);
+  // Flutter Boost 需要清理 routerHistory, 否则会导致与真实的 Flutter 中 Route 的情况不一致
+  // 从而导致 back 键执行 pop 时，由于 routeHistory 状态不对，导致无法退出应用或者返回上一页
+  @override
+  Future<T> pushAndRemoveUntil<T extends Object>(Route<T> newRoute, RoutePredicate predicate) {
+    final Future<T> future = super.pushAndRemoveUntil(newRoute, predicate);
+
+    while (routerHistory.isNotEmpty && (!predicate(routerHistory.last))) {
+      routerHistory.removeLast();
+    }
   }
 
   @override
