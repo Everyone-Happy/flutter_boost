@@ -237,11 +237,25 @@ class BoostContainerState extends NavigatorState {
   // 从而导致 back 键执行 pop 时，由于 routeHistory 状态不对，导致无法退出应用或者返回上一页
   @override
   Future<T> pushAndRemoveUntil<T extends Object>(Route<T> newRoute, RoutePredicate predicate) {
-    final Future<T> future = super.pushAndRemoveUntil(newRoute, predicate);
-
     while (routerHistory.isNotEmpty && (!predicate(routerHistory.last))) {
       routerHistory.removeLast();
     }
+
+    Route<T> newPushRoute;
+    if (FlutterBoost.containerManager.prePushRoute != null) {
+      newPushRoute = FlutterBoost.containerManager
+          .prePushRoute<T>(name, uniqueId, params, newRoute);
+    }
+    routerHistory.add(newRoute);
+
+    final Future<T> future =  super.pushAndRemoveUntil(newRoute, predicate);
+
+    if (FlutterBoost.containerManager.postPushRoute != null) {
+      FlutterBoost.containerManager
+          .postPushRoute(name, uniqueId, params, newPushRoute ?? newRoute, future);
+    }
+
+    return future;
   }
 
   @override
