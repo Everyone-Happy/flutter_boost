@@ -9,6 +9,8 @@ import io.flutter.embedding.engine.systemchannels.KeyEventChannel;
 import io.flutter.plugin.editing.TextInputPlugin;
 
 public class XAndroidKeyProcessor {
+    private static long eventIdSerial = 0;
+
     @NonNull
     private final KeyEventChannel keyEventChannel;
     @NonNull
@@ -25,7 +27,7 @@ public class XAndroidKeyProcessor {
     public void onKeyUp(@NonNull KeyEvent keyEvent) {
         Character complexCharacter = applyCombiningCharacterToBaseCharacter(keyEvent.getUnicodeChar());
         keyEventChannel.keyUp(
-                new KeyEventChannel.FlutterKeyEvent(keyEvent, complexCharacter)
+                new KeyEventChannel.FlutterKeyEvent(keyEvent, complexCharacter, eventIdSerial++)
         );
     }
 
@@ -37,7 +39,7 @@ public class XAndroidKeyProcessor {
 
         Character complexCharacter = applyCombiningCharacterToBaseCharacter(keyEvent.getUnicodeChar());
         keyEventChannel.keyDown(
-                new KeyEventChannel.FlutterKeyEvent(keyEvent, complexCharacter)
+                new KeyEventChannel.FlutterKeyEvent(keyEvent, complexCharacter, eventIdSerial++)
         );
     }
 

@@ -85,11 +85,14 @@ public class XPlatformPlugin {
         }
 
         @Override
+        public boolean clipboardHasStrings() {
+            return false;
+        }
+
         public List<Rect> getSystemGestureExclusionRects() {
             return XPlatformPlugin.this.getSystemGestureExclusionRects();
         }
 
-        @Override
         public void setSystemGestureExclusionRects(@NonNull ArrayList<Rect> rects) {
             XPlatformPlugin.this.setSystemGestureExclusionRects(rects);
         }
