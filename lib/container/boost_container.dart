@@ -129,7 +129,7 @@ class BoostContainer extends Navigator {
   RouteListFactory get initialRoutes => super.onGenerateInitialRoutes;
 }
 
-class BoostContainerState extends NavigatorState {
+class BoostContainerState extends NavigatorState with WidgetsBindingObserver {
   VoidCallback backPressedHandler;
 
   String get uniqueId => widget.settings.uniqueId;
@@ -162,6 +162,27 @@ class BoostContainerState extends NavigatorState {
     return null;
   }
 
+  AppLifecycleState _previousState = null;
+
+  /// 当处于  native vc -> 进入flutter boost 页面1 -> Navigator push 进行新的 Flutter 页面 -> 进入 flutter boost 页面2
+  /// 从 flutter boost 页面 pop 返回时，会由于 MaterialApp 共用一个 HeroController 来订阅监听 Navigator 的相关事件
+  /// 当 flutter boost 页面2 pop 返回时，页面2由于是最后一个页面，pop 后会被回收，导致公用的 HeroController 监听的 Navigator 被置空
+  /// 当回到 flutter boost 页面1时，需要将 HeroController 订阅监听的 Navigator 重新设置为当前 BoostContainerState
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (_previousState != state) {
+      _previousState = state;
+
+      if (state == AppLifecycleState.resumed) {
+        HeroController controller = HeroControllerScope.of(context);
+
+        if (controller?.navigator != this) {
+          controller.navigator = this;
+        }
+      }
+    }
+  }
+
   @override
   void initState() {
     super.initState();
@@ -175,12 +196,16 @@ class BoostContainerState extends NavigatorState {
           )
       );
     }
+
+    WidgetsBinding.instance.addObserver(this);
   }
 
   @override
   void dispose() {
     routerHistory.clear();
     super.dispose();
+
+    WidgetsBinding.instance.removeObserver(this);
   }
 
   void performBackPressed() {
