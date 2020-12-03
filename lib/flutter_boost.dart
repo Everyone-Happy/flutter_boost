@@ -63,8 +63,6 @@ class FlutterBoost {
   final ObserversHolder _observersHolder = ObserversHolder();
   final BoostChannel _boostChannel = BoostChannel();
 
-
-
   static ContainerManagerState get containerManager =>
       _instance.containerManagerKey.currentState;
 
@@ -93,16 +91,17 @@ class FlutterBoost {
       {TransitionBuilder builder,
       PrePushRoute prePush,
       PostPushRoute postPush}) {
-    if (Platform.isAndroid) {
-      onPageStart();
-    } else if (Platform.isIOS) {
-      assert(() {
-        () async {
-          onPageStart();
-        }();
-        return true;
-      }());
-    }
+    /// iOS异步加载onPageStart会导致release模式下，第一次安装时出现白屏问题，无法加载onPageStart
+    // if (Platform.isAndroid) {
+    onPageStart();
+    // } else if (Platform.isIOS) {
+    //   assert(() {
+    //     () async {
+    //       onPageStart();
+    //     }();
+    //     return true;
+    //   }());
+    // }
 
     return (BuildContext context, Widget child) {
       assert(child is Navigator, 'child must be Navigator, what is wrong?');
