@@ -246,7 +246,9 @@ public class XTextInputPlugin {
             if (isInputConnectionLocked) {
                 return lastInputConnection;
             }
-            lastInputConnection = platformViewsController.getPlatformViewById(inputTarget.id).onCreateInputConnection(outAttrs);
+            if (platformViewsController != null && platformViewsController.getPlatformViewById(inputTarget.id) != null) {
+                lastInputConnection = platformViewsController.getPlatformViewById(inputTarget.id).onCreateInputConnection(outAttrs);
+            }
             return lastInputConnection;
         }
 
