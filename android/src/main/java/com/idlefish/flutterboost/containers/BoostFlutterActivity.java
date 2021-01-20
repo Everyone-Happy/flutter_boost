@@ -291,7 +291,11 @@ public class BoostFlutterActivity extends Activity
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        delegate.onActivityResult(requestCode, resultCode, data);
+        try {
+            delegate.onActivityResult(requestCode, resultCode, data);
+        } catch (Exception e) {
+
+        }
     }
 
     @Override
