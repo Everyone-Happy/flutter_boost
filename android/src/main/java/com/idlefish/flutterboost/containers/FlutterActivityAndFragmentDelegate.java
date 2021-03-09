@@ -42,6 +42,7 @@ public class FlutterActivityAndFragmentDelegate implements IFlutterViewContainer
 
     private static final String TAG = "FlutterActivityAndFragmentDelegate";
     private  static int ACTIVITY_CONTROL_SURFACE_ATTACH_TO_ACTVITY_HASH_CODE=0;
+    private static int ACTIVITY_ENTRY_HASH_CODE = 0;
     @NonNull
     private Host host;
     @Nullable
@@ -61,6 +62,9 @@ public class FlutterActivityAndFragmentDelegate implements IFlutterViewContainer
 
     public FlutterActivityAndFragmentDelegate(@NonNull Host host) {
         this.host = host;
+        if (FlutterActivityAndFragmentDelegate.ACTIVITY_ENTRY_HASH_CODE == 0) {
+            FlutterActivityAndFragmentDelegate.ACTIVITY_ENTRY_HASH_CODE = host.getActivity().hashCode();
+        }
     }
 
     public void release() {
@@ -178,7 +182,7 @@ public class FlutterActivityAndFragmentDelegate implements IFlutterViewContainer
                     host.getActivity(),
                     host.getLifecycle()
             );
-            ACTIVITY_CONTROL_SURFACE_ATTACH_TO_ACTVITY_HASH_CODE=this.host.getActivity().hashCode();
+            ACTIVITY_CONTROL_SURFACE_ATTACH_TO_ACTVITY_HASH_CODE= this.host.getActivity().hashCode();
         }
 
 
@@ -234,9 +238,12 @@ public class FlutterActivityAndFragmentDelegate implements IFlutterViewContainer
             platformPlugin = null;
         }
 
-        if(ACTIVITY_CONTROL_SURFACE_ATTACH_TO_ACTVITY_HASH_CODE!=0||
-                ACTIVITY_CONTROL_SURFACE_ATTACH_TO_ACTVITY_HASH_CODE==this.host.getActivity().hashCode()){
-            flutterEngine.getActivityControlSurface().detachFromActivityForConfigChanges();
+        if(FlutterActivityAndFragmentDelegate.ACTIVITY_ENTRY_HASH_CODE == this.host.getActivity().hashCode()){
+            if(ACTIVITY_CONTROL_SURFACE_ATTACH_TO_ACTVITY_HASH_CODE != 0 ||
+                    ACTIVITY_CONTROL_SURFACE_ATTACH_TO_ACTVITY_HASH_CODE == this.host.getActivity().hashCode()) {
+                flutterEngine.getActivityControlSurface().detachFromActivityForConfigChanges();
+            }
+            FlutterActivityAndFragmentDelegate.ACTIVITY_ENTRY_HASH_CODE = 0;
         }
 
         Utils.fixInputMethodManagerLeak(host.getActivity());
